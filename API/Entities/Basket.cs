@@ -13,7 +13,7 @@ namespace API.Entities
 
         public void AddItem(Product product, int quantity)
         {
-            if(Items.All(item => item.Id !=product.Id))
+            if(Items.All(item => item.ProductId !=product.Id))
             {
                 Items.Add(new BasketItem{Product = product, Quantity=quantity});
             }
