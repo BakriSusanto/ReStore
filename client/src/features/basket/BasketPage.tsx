@@ -13,41 +13,17 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import agent from '../../app/api/agent';
 import { useAppDispatch, useAppSelector } from '../../app/store/configureStore';
 import { currencyFormat } from '../../app/util/util';
 import BasketSummary from './BasketSummary';
-import { removeItem, setBasket } from './basketSlice';
-//import { useStoreContext } from '../../app/context/StoreContext';
+import { addBasketItemAsync, removeBasketItemAsync } from './basketSlice';
 
 export default function BasketPage() {
-  //const { basket, setBasket, removeItem } = useStoreContext();
   const dispatch = useAppDispatch();
-  const { basket } = useAppSelector((state) => state.basket);
-  const [status, setStatus] = useState({
-    loading: false,
-    name: '',
-  });
+  const { basket, status } = useAppSelector((state) => state.basket);
 
-  function handleAddItem(productId: number, name: string) {
-    setStatus({ loading: true, name });
-    agent.Basket.addItem(productId)
-      .then((basket) => dispatch(setBasket(basket)))
-      .catch((error) => console.log(error))
-      .finally(() => setStatus({ loading: false, name: '' }));
-  }
-
-  function handleRemoveItem(productId: number, quantity = 1, name: string) {
-    setStatus({ loading: true, name });
-    agent.Basket.removeItem(productId, quantity)
-      .then(() => dispatch(removeItem({ productId, quantity })))
-      .catch((error) => console.log(error))
-      .finally(() => setStatus({ loading: false, name: '' }));
-  }
-
-  if (!basket)
+  if (!basket || basket.items.length === 0)
     return <Typography variant="h3">Your basket is empty</Typography>;
 
   return (
@@ -86,15 +62,15 @@ export default function BasketPage() {
                   <LoadingButton
                     color="error"
                     onClick={() =>
-                      handleRemoveItem(
-                        item.productId,
-                        1,
-                        'rem' + item.productId
+                      dispatch(
+                        removeBasketItemAsync({
+                          productId: item.productId,
+                          quantity: 1,
+                          name: 'rem',
+                        })
                       )
                     }
-                    loading={
-                      status.loading && status.name === 'rem' + item.productId
-                    }
+                    loading={status === 'pending' + item.productId + 'rem'}
                   >
                     <Remove />
                   </LoadingButton>
@@ -102,11 +78,11 @@ export default function BasketPage() {
                   <LoadingButton
                     color="secondary"
                     onClick={() =>
-                      handleAddItem(item.productId, 'add' + item.productId)
+                      dispatch(
+                        addBasketItemAsync({ productId: item.productId })
+                      )
                     }
-                    loading={
-                      status.loading && status.name === 'add' + item.productId
-                    }
+                    loading={status === 'pending' + item.productId}
                   >
                     <Add />
                   </LoadingButton>
@@ -118,15 +94,15 @@ export default function BasketPage() {
                   <LoadingButton
                     color="error"
                     onClick={() =>
-                      handleRemoveItem(
-                        item.productId,
-                        item.quantity,
-                        'del' + item.productId
+                      dispatch(
+                        removeBasketItemAsync({
+                          productId: item.productId,
+                          quantity: item.quantity,
+                          name: 'del',
+                        })
                       )
                     }
-                    loading={
-                      status.loading && status.name === 'del' + item.productId
-                    }
+                    loading={status === 'pending' + item.productId + 'del'}
                   >
                     <Delete />
                   </LoadingButton>
