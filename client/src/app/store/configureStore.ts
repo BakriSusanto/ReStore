@@ -15,7 +15,7 @@ export const store = configureStore({
   reducer: {
     counter: counterSlice.reducer,
     basket: basketSlice.reducer,
-    katalog: catalogSlice.reducer
+    catalog: catalogSlice.reducer
   }
 })
 

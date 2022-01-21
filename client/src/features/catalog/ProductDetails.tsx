@@ -29,7 +29,7 @@ export default function ProductDetails() {
   const product = useAppSelector((state) =>
     productsSelector.selectById(state, id)
   );
-  const { status: productStatus } = useAppSelector((state) => state.katalog);
+  const { status: productStatus } = useAppSelector((state) => state.catalog);
   const [quantity, setQuantity] = useState(0);
   const item = basket?.items.find((item) => item.productId === product?.id);
 
